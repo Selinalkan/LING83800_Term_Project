@@ -71,8 +71,19 @@ class G2PTest(unittest.TestCase):
     def test_på(self):
         self.rewrites("på", "poː")
 
-     def test_aln(self):
-         self.rewrites("aln", "ɑːln")
+    # vowel lowering (short)
+    def test_närt(self):
+        self.rewrites("närt", "næʈ")
+
+    def test_hörs(self):
+        self.rewrites("hörs", "hœʂ")
+
+    # # vowel lowering (long)
+    def test_här(self):
+        self.rewrites("här", "hæːr")
+
+    def test_hör(self):
+        self.rewrites("hör", "hœ:r")
 
     # <c> as /s/ before fv
     def test_cent(self):

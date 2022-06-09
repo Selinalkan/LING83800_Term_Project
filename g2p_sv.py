@@ -39,8 +39,8 @@ v = pynini.union(
     "ɛː",
     "ɛ",
     # # Reduction of <e> before a retroflex
-    # "æː",  # ära /ˈɛ̂ːra/ → [ˈæ̂ːra] ('honor')
-    # "æ",  # ärt /ˈɛrt/ → [ˈæʈː] ('pea')
+    "æː",  # ära /ˈɛ̂ːra/ → [ˈæ̂ːra] ('honor')
+    "æ",  # ärt /ˈɛrt/ → [ˈæʈː] ('pea')
     "ɑː",
     "a",
     "oː",
@@ -54,8 +54,8 @@ v = pynini.union(
     "øː",
     "ø",
     # # Reduction of <ö> before a retroflex
-    # "œ:",  # øː --> œ: / _r
-    # "œ",  # # ø --> œ / _r
+    "œ:",  # øː --> œ: / _r
+    "œ",  # # ø --> œ / _r
 )
 c = pynini.union(
     # 20 consonants
@@ -114,6 +114,7 @@ fv = pynini.union(
 
 G2P = (
     # Rule #1 – short vowels (assuming stress)
+
     pynini.cdrewrite(
         pynini.string_map(
             [
@@ -151,6 +152,22 @@ G2P = (
         c.ques + "[EOS]",
         SIGMA_STAR,
     )
+    # Vowel lowering
+    @ pynini.cdrewrite(
+        pynini.string_map([("ä", "æ"), ("ö", "œ")]),
+        "",
+        pynini.union("rl", "rt", "rd", "rs", "rn"),
+        # pynini.accep("r") + c.plus,
+        SIGMA_STAR,
+    )
+    # # Rule #4 – Vowel lowering (long)
+    @ pynini.cdrewrite(
+        pynini.string_map([("ä", "æː"), ("ö", "œ:")]),
+        "",
+        pynini.accep("r") + "[EOS]",
+        SIGMA_STAR,
+    )
+
     # "rl", "rn", "rd", "ln" simplified the long vowel rule
     # Consonants
     # Rule #3 – <c> as /s/
@@ -192,7 +209,7 @@ G2P = (
         pynini.cross("g", "j"), pynini.union("r", "l"), "", SIGMA_STAR,
     )
     # Rule #14 - <gj> as /ʝ/
-    @ pynini.cdrewrites(pynini.cross("gj", "ʝ"), "[BOS]", "")
+    @ pynini.cdrewrite(pynini.cross("gj", "ʝ"), "[BOS]", "", SIGMA_STAR)
     # Rule #15 – /l/-palatalization
     @ pynini.cdrewrite(pynini.cross("lj", "ʝ"), "[BOS]", "", SIGMA_STAR)
     # Rule #16 – <ng>
