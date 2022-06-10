@@ -26,7 +26,7 @@ class G2PTest(unittest.TestCase):
 
     # the following also tests for long /j/
     def test_grej(self):
-        self.rewrites("grej", "greːjː")
+        self.rewrites("grej", "greːjj")
 
     def test_hämnd(self):
         self.rewrites("hämnd", "hɛmnd")
@@ -41,7 +41,7 @@ class G2PTest(unittest.TestCase):
         self.rewrites("bord", "bʊɖ")
 
     def test_åtta(self):
-        self.rewrites("åtta", "ɔtːɑː")
+        self.rewrites("åtta", "ɔttɑː")
 
     def test_namn(self):
         self.rewrites("namn", "namn")
@@ -83,7 +83,7 @@ class G2PTest(unittest.TestCase):
         self.rewrites("här", "hæːr")
 
     def test_hör(self):
-        self.rewrites("hör", "hœ:r")
+        self.rewrites("hör", "hœːr")
 
     # <c> as /s/ before fv
     def test_cent(self):
@@ -91,7 +91,7 @@ class G2PTest(unittest.TestCase):
 
     # <ck> as /kː/
     def test_bock(self):
-        self.rewrites("bock", "bʊkː")
+        self.rewrites("bock", "bʊkk")
 
     # <c> as /k/
     def test_cab(self):
@@ -153,7 +153,7 @@ class G2PTest(unittest.TestCase):
 
     # tj/kj-sound
     def test_tjej(self):
-        self.rewrites("tjej", "ɕeːjː")
+        self.rewrites("tjej", "ɕeːjj")
 
     def test_kjol(self):
         self.rewrites("kjol", "ɕuːl")
@@ -198,43 +198,6 @@ class G2PTest(unittest.TestCase):
     # <z> as /s/
     def test_zen(self):
         self.rewrites("zen", "seːn")
-
-    # long consonants
-    def test_gubbe(self):
-        self.rewrites("gubbe", "gɵbːeː")
-
-    def test_bodde(self):
-        self.rewrites("bodde", "bʊdːeː")
-
-    def test_kaffe(self):
-        self.rewrites("kaffe", "kafːeː")
-
-    def test_bygga(self):
-        self.rewrites("bygga", "bʏgːɑː")
-
-    def test_acke(self):
-        self.rewrites("acke", "akːeː")
-
-    def test_alla(self):
-        self.rewrites("alla", "alːɑː")
-
-    def test_hemma(self):
-        self.rewrites("hemma", "hemːɑː")
-
-    def test_penna(self):
-        self.rewrites("penna", "penːɑː")
-
-    def test_dippa(self):
-        self.rewrites("dippa", "dɪpːɑː")
-
-    def test_norra(self):
-        self.rewrites("norra", "nʊrːɑː")
-
-    def test_kyssa(self):
-        self.rewrites("kyssa", "ɕʏsːɑː")
-
-    def test_titta(self):
-        self.rewrites("titta", "tɪtːɑː")
 
 
 if __name__ == "__main__":

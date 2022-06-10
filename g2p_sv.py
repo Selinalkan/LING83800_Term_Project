@@ -5,10 +5,10 @@ from pynini.lib import rewrite
 from pynini.lib import pynutil
 
 # Graphemes are based on:
-# https://en.wikipedia.org/wiki/Swedish_alphabet#Sound%E2%80%93spelling_correspondences
+# https://en.wikipedia.org/wiki/Swedish_alphabet
 
 # Phonemes are based on:
-# https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780199543571.001.0001/acprof-9780199543571-chapter-2
+# https://oxford.universitypressscholarship.com/view/10.1093/acprof:oso/9780199543571.001.0001/acprof-9780199543571
 # https://en.wikipedia.org/wiki/Swedish_phonology
 # https://en.wikipedia.org/wiki/Help:IPA/Swedish
 
@@ -32,30 +32,21 @@ v = pynini.union(
     "ä",
     "ö",
     # Vowel phonemes that aren't also graphemes
-    "iː",
     "ɪ",
-    "eː",
     "e",
-    "ɛː",
     "ɛ",
-    # # Reduction of <e> before a retroflex
-    "æː",  # ära /ˈɛ̂ːra/ → [ˈæ̂ːra] ('honor')
-    "æ",  # ärt /ˈɛrt/ → [ˈæʈː] ('pea')
-    "ɑː",
+    "æ",
+    "ɑ",
     "a",
-    "oː",
     "ɔ",
-    "uː",
     "ʊ",
-    "ʉː",
+    "ʉ",
     "ɵ",
-    "yː",
     "ʏ",
-    "øː",
     "ø",
-    # # Reduction of <ö> before a retroflex
-    "œ:",  # øː --> œ: / _r
-    "œ",  # # ø --> œ / _r
+    "œ",
+    # length marker
+    "ː"
 )
 c = pynini.union(
     # 20 consonants
@@ -89,20 +80,7 @@ c = pynini.union(
     "ɳ",
     "ʂ",
     "ʈ",
-    "ʝ",
-    "jː",
-    "bː",
-    "dː",
-    "fː",
-    "gː",
-    "lː",
-    "mː",
-    "nː",
-    "pː",
-    "rː",
-    "sː",
-    "tː",
-    "kː",
+    "ʝ"
 )
 
 SIGMA_STAR = pynini.union(v, c).closure().optimize()
@@ -113,9 +91,22 @@ fv = pynini.union(
 )
 
 G2P = (
-    # Rule #1 – short vowels (assuming stress)
-
+    # Rule #1 – vowel lowering (short)
     pynini.cdrewrite(
+        pynini.string_map([("ä", "æ"), ("ö", "œ")]),
+        "",
+        pynini.union("rl", "rt", "rd", "rs", "rn"),
+        SIGMA_STAR,
+    )
+    # Rule #2 – vowel lowering (long)
+    @ pynini.cdrewrite(
+        pynini.string_map([("ä", "æː"), ("ö", "œː")]),
+        "",
+        pynini.accep("r") + "[EOS]",
+        SIGMA_STAR,
+    )
+    # Rule #3 – short vowels (assuming stress)
+    @ pynini.cdrewrite(
         pynini.string_map(
             [
                 ("i", "ɪ"),
@@ -133,7 +124,7 @@ G2P = (
         pynini.union(c + c.plus, "j", "m"),
         SIGMA_STAR,
     )
-    # Rule #2 – long vowels (assuming stress)
+    # Rule #4 – long vowels (assuming stress)
     @ pynini.cdrewrite(
         pynini.string_map(
             [
@@ -152,48 +143,29 @@ G2P = (
         c.ques + "[EOS]",
         SIGMA_STAR,
     )
-    # Vowel lowering
-    @ pynini.cdrewrite(
-        pynini.string_map([("ä", "æ"), ("ö", "œ")]),
-        "",
-        pynini.union("rl", "rt", "rd", "rs", "rn"),
-        # pynini.accep("r") + c.plus,
-        SIGMA_STAR,
-    )
-    # # Rule #4 – Vowel lowering (long)
-    @ pynini.cdrewrite(
-        pynini.string_map([("ä", "æː"), ("ö", "œ:")]),
-        "",
-        pynini.accep("r") + "[EOS]",
-        SIGMA_STAR,
-    )
-
-    # "rl", "rn", "rd", "ln" simplified the long vowel rule
     # Consonants
-    # Rule #3 – <c> as /s/
+    # Rule #5 – <c> as /s/
     @ pynini.cdrewrite(pynini.cross("c", "s"), "", fv, SIGMA_STAR)
-    # Rule #4 – <ck> as /k/
-    @ pynini.cdrewrite(pynini.cross("ck", "kː"), "", "", SIGMA_STAR)
-    # Rule #5 – <ch> as /ɧ/
+    # Rule #6 – <ck> as /k/
+    @ pynini.cdrewrite(pynini.cross("ck", "kk"), "", "", SIGMA_STAR)
+    # Rule #7 – <ch> as /ɧ/
     @ pynini.cdrewrite(pynini.cross("ch", "ɧ"), "", "", SIGMA_STAR)
-    # Rule #6 – <c> as /k/
+    # Rule #8 – <c> as /k/
     @ pynini.cdrewrite(pynini.cross("c", "k"), "", "", SIGMA_STAR)
-    # Rule #7 – /d/-deletion
+    # Rule #9 – /d/-deletion
     @ pynini.cdrewrite(
         pynutil.delete("d"),
         "n",
         pynini.union("p", "b", "k", "g", "f", "v", "s"),
         SIGMA_STAR,
     )
-    # Rule #8 – <gn> as /gn/
-    @ pynini.cdrewrite(pynini.cross("gn", "gn"), "[BOS]", v, SIGMA_STAR)
-    # Rule #9 – <gn> as /ŋ/
+    # Rule #10 – <gn> as /ŋ/
     @ pynini.cdrewrite(
         pynini.cross("gn", "ŋ"), "", pynini.union("t", "s"), SIGMA_STAR
     )
-    # Rule #10 – <gn> as /ŋn/
+    # Rule #11 – <gn> as /ŋn/
     @ pynini.cdrewrite(pynini.cross("gn", "ŋn"), v, "", SIGMA_STAR)
-    # Rule #11 – retroflexes
+    # Rule #12 – retroflexes
     @ pynini.cdrewrite(
         pynini.string_map(
             [("rt", "ʈ"), ("rd", "ɖ"), ("rn", "ɳ"), ("rs", "ʂ"), ("rl", "ɭ")]
@@ -202,54 +174,33 @@ G2P = (
         "",
         SIGMA_STAR,
     )
-    # Rule #12 – lenition of dorsals before front vowels (palatalization)
+    # Rule #13 – lenition of dorsals before front vowels (palatalization)
     @ pynini.cdrewrite(pynini.cross("g", "j"), "", fv, SIGMA_STAR)
-    # Rule #13 – /g/-palatalization after /r, l/
+    # Rule #14 – /g/-palatalization after /r, l/
     @ pynini.cdrewrite(
         pynini.cross("g", "j"), pynini.union("r", "l"), "", SIGMA_STAR,
     )
-    # Rule #14 - <gj> as /ʝ/
+    # Rule #15 - <gj> as /ʝ/
     @ pynini.cdrewrite(pynini.cross("gj", "ʝ"), "[BOS]", "", SIGMA_STAR)
-    # Rule #15 – /l/-palatalization
+    # Rule #16 – /l/-palatalization
     @ pynini.cdrewrite(pynini.cross("lj", "ʝ"), "[BOS]", "", SIGMA_STAR)
-    # Rule #16 – <ng>
+    # Rule #17 – <ng>
     @ pynini.cdrewrite(pynini.cross("ng", "ŋ"), "", "", SIGMA_STAR)
-    # Rule #17 – <sj>-sound before vowels
+    # Rule #18 – <sj>-sound before vowels
     @ pynini.cdrewrite(
         pynini.cross(pynini.union("sj", "skj", "stj"), "ɧ"), "", v, SIGMA_STAR,
     )
-    # Rule #18 – <tj>/<kj>-sound
+    # Rule #19 – <tj>/<kj>-sound
     @ pynini.cdrewrite(
         pynini.cross(pynini.union("tj", "kj"), "ɕ"), "", "", SIGMA_STAR
     )
-    # Rule #19 – <sk> as /ɧ/ before front vowels
+    # Rule #20 – <sk> as /ɧ/ before front vowels
     @ pynini.cdrewrite(pynini.cross("sk", "ɧ"), "", fv, SIGMA_STAR)
-    # Rule #20
+    # Rule #21
     @ pynini.cdrewrite(
         pynini.string_map([("gj", "ʝ"), ("w", "v"), ("x", "ks"), ("z", "s")]),
         "",
         "",
-        SIGMA_STAR,
-    )
-    # Rule #21 – long consonants
-    @ pynini.cdrewrite(
-        pynini.string_map(
-            [
-                ("bb", "bː"),
-                ("dd", "dː"),
-                ("ff", "fː"),
-                ("gg", "gː"),
-                ("ll", "lː"),
-                ("mm", "mː"),
-                ("nn", "nː"),
-                ("pp", "pː"),
-                ("rr", "rː"),
-                ("ss", "sː"),
-                ("tt", "tː"),
-            ]
-        ),
-        v,
-        v,
         SIGMA_STAR,
     )
     # Rule #22 – short double consonants
@@ -274,9 +225,9 @@ G2P = (
         SIGMA_STAR,
     )
     # Rule #23 – /k/-palatalization
-    @ pynini.cdrewrite(pynini.cross("k", "ɕ"), "", fv, SIGMA_STAR)
+    @ pynini.cdrewrite(pynini.cross("k", "ɕ"), "[BOS]", fv, SIGMA_STAR)
     # Rule #24 – j is always long
-    @ pynini.cdrewrite(pynini.cross("j", "jː"), v, "", SIGMA_STAR)
+    @ pynini.cdrewrite(pynini.cross("j", "jj"), v, "", SIGMA_STAR)
 )
 
 
