@@ -20,7 +20,7 @@ def main(args: argparse.Namespace) -> None:
         WER = 100 * (1 - ACC)
 
         print(f"Accuracy:\t{ACC}")
-        print(f"WER:\t\t{WER}")
+        print(f"WER:\t\t{WER:.2f}")
     except:
         print("NameOfException: logic")
 
