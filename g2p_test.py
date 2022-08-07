@@ -2,7 +2,7 @@
 
 import unittest
 
-import g2p_sv
+import g2p
 
 
 class G2PTest(unittest.TestCase):
@@ -13,7 +13,7 @@ class G2PTest(unittest.TestCase):
             istring: the input string
             expected_ostring: the expected output string.
         """
-        ostring = g2p_sv.g2p(istring)
+        ostring = g2p.g2p(istring)
         self.assertEqual(ostring, expected_ostring)
 
     # short vowel tests
